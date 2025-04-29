@@ -1,7 +1,5 @@
 import app from "./app.js";
-
-
-
-app.get('/', (req, res) => {
-  res.send('Server is running...');
-});
+import userRouter from './routes/user.routes.js'
+import postRouter from './routes/post.route.js'
+app.use('/api/v1/users', userRouter)
+app.use('/api/v1/posts', postRouter)

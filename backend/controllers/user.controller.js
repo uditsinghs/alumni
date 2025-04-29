@@ -1,0 +1,348 @@
+import { User } from "../models/user.model.js";
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { uploadImageOnCloudinary } from "../utils/cloudinary.js";
+export const registerUser = async (req, res) => {
+  try {
+    const { name, email, password, batch, branch, role } = req.body;
+    if (!name || !email || !password || !batch || !branch || !role) {
+      return res.status(400).json({ message: "Please provide all details", success: false })
+    }
+    const user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ message: "user already exist. please login", success: false })
+    }
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      name, email, password: hashedPassword, batch, branch, role
+    })
+    return res.status(201).json({ message: "User registered successfully", success: true, })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    })
+
+  }
+}
+
+
+export const loginUser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Please provide all details", success: false });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User not found. Please register", success: false });
+    }
+
+    // If user is alumni and not verified, show a message
+    if (user.role === "alumni" && !user.isVarified) {
+      return res.status(400).json({ message: "Wait for verification ☹", success: false });
+    }
+
+    // Compare password
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+      return res.status(400).json({ message: "Invalid credentials", success: false });
+    }
+
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "2d" });
+
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 2 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "Login successful",
+      success: true,
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error,
+    });
+  }
+};
+
+export const getLoggedinUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    if (!userId) {
+      return res.status(400).json({ message: "userId not found", success: false });
+    }
+    const user = await User.findById(userId).select("-password")
+    if (!user) {
+      return res.status(400).json({ message: "user not found", success: false });
+    }
+    return res.status(200).json({
+      user,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    })
+
+  }
+}
+
+export const getAllAlumni = async (req, res) => {
+  try {
+    const alumnies = await User.find({ role: "alumni" }).select("-password");
+
+    if (alumnies.length === 0) {
+      return res.status(400).json({ message: "No alumni found", success: false });
+    }
+
+    return res.status(200).json({
+      alumnies,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    });
+  }
+};
+export const getUnVerifiedAlumnies = async (req, res) => {
+  try {
+    // Find alumni who are not verified
+    const unVerifiedAlumnies = await User.find({ role: "alumni", isVerified: false }).select("-password");
+
+    if (unVerifiedAlumnies.length === 0) {
+      return res.status(400).json({ message: "No unverified alumni found", success: false });
+    }
+
+    return res.status(200).json({
+      unVerifiedAlumnies,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    });
+  }
+};
+
+
+
+// need to update this controller i will do this later
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentCompany, jobTitle, location, bio } = req.body;
+    const profileImage = req.file; // multer file
+
+    if (!profileImage) {
+      return res.status(400).json({ message: "Profile image not found", success: false });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "User not found", success: false });
+    }
+
+    // Initialize missing fields
+    if (user.currentCompany === undefined) user.currentCompany = "";
+    if (user.jobTitle === undefined) user.jobTitle = "";
+    if (user.location === undefined) user.location = "";
+    if (user.bio === undefined) user.bio = "";
+    if (user.profileImage.url === undefined && user.profileImage.public_id === undefined) user.profileImage.url = ""
+
+    const cloudinaryResponse = await uploadImageOnCloudinary(profileImage.path)
+    if (!cloudinaryResponse) {
+      return res.status(400).json({ message: "Error uploading image on cloudinary", success: false });
+    }
+    // Now update
+    user.currentCompany = currentCompany || user.currentCompany;
+    user.jobTitle = jobTitle || user.jobTitle;
+    user.location = location || user.location;
+    user.bio = bio || user.bio;
+    user.profileImage = profileImage.filename;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user,
+      success: true,
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    });
+  }
+};
+export const getSingleAlumni = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+
+      return res.status(400).json({ message: "UserId not found", success: false });
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "User not found", success: false });
+    }
+    return res.status(200).json({
+      user,
+      success: true
+    })
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    });
+  }
+};
+
+export const LogoutUser = async (req, res) => {
+  try {
+    res.cookie('token', "", {
+      ttpOnly: true,
+      maxAge: 2 * 24 * 60 * 60 * 1000,
+    }).status(200).json({ message: "Logout user", success: true })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    });
+  }
+};
+
+
+
+// admin controllers
+export const verifiedAlumni = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ message: "userId not found", success: false })
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "user not found", success: false })
+    }
+    if (user.role == "alumni") {
+      user.isVarified = true;
+    }
+    await user.save();
+    return res.status(200).json({ message: "user verified successfully", success: true })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    })
+
+  }
+}
+
+
+export const getallusers = async (req, res) => {
+  try {
+    const allusers = await User.find().select("-password");
+
+    if (allusers.length === 0) {
+      return res.status(400).json({ message: "No user found", success: false });
+    }
+
+    return res.status(200).json({
+      allusers,
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+
+    const { userId } = req.params;
+    if (!userId) {
+
+      return res.status(400).json({ message: "UserId not found", success: false });
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "User not found", success: false });
+    }
+
+    await user.deleteOne();
+    return res.status(200).json({ message: "user deleted successfully", success: true })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    });
+  }
+};
+export const changeUserRole = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+    if (!role) {
+
+      return res.status(400).json({ message: "role not found", success: false });
+    }
+    if (!userId) {
+
+      return res.status(400).json({ message: "userId not found", success: false });
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "User not found", success: false });
+    }
+    user.role = role;
+    await user.save();
+
+    return res.status(200).json({ message: "user role change successfully", success: true })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    });
+  }
+};

@@ -6,7 +6,12 @@ const postSchema = new mongoose.Schema({
     required: true,
   },
   image: {
-    type: String, // optional post image
+    url: {
+      type: String,
+    },
+    public_id: {
+      type: String
+    }
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
