@@ -6,7 +6,7 @@ const router = express();
 router.post("/register", registerUser);
 router.put("/verify/:userId", authenticateUser, authorizeRoles("admin"), verifiedAlumni);
 router.post('/login', loginUser);
-router.get('/get', authenticateUser, getLoggedinUser);
+router.get('/me', authenticateUser, getLoggedinUser);
 router.get('/allalumnies', getAllAlumni);
 router.get('/getuser/:userId', authenticateUser, getSingleAlumni)
 router.get('/unverified', authenticateUser, authorizeRoles("admin"), getUnVerifiedAlumnies);

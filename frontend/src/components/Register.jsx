@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -10,7 +10,9 @@ import {
   SelectItem,
 } from "./ui/select";
 import { Label } from "./ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "@/features/auth/authService";
+import { toast } from "sonner";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -21,18 +23,44 @@ const Register = () => {
     batch: "",
     branch: "",
   });
-
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    // Call your API here
+    try {
+      setIsError(false);
+      setIsLoading(true);
+      const data = await registerUser(formData);
+      if (data.success) {
+        setIsLoading(false);
+        toast.success(data?.message || "login success");
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          role: "alumni",
+          batch: "",
+          branch: "",
+        });
+      }
+      if (data.newUser.role === "alumni") {
+        navigate("/message");
+      } else {
+        navigate("/login");
+      }
+    } catch (error) {
+      setIsError(true);
+      console.error(error);
+      toast.error(error?.response?.data?.message || "Login failed");
+    }
   };
-
+  if (isError) return <p>something went wrong</p>;
   return (
     <div className="flex min-h-screen  items-center w-full justify-center bg-gradient-to-br from-blue-100 to-purple-200 p-4">
       <div className="w-full max-w-sm bg-white/70 backdrop-blur-md p-6 rounded-xl shadow-2xl flex flex-col gap-6">
@@ -85,7 +113,7 @@ const Register = () => {
                 <SelectValue placeholder="Select Role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="student">Student</SelectItem>
+                <SelectItem value="user">Student</SelectItem>
                 <SelectItem value="alumni">Alumni</SelectItem>
               </SelectContent>
             </Select>
@@ -114,7 +142,11 @@ const Register = () => {
             className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white transition-all duration-300 rounded-md py-2"
             variant="secondary"
           >
-            Register
+            {isLoading ? (
+              <Loader2 className="mr-2 animate-spin w-2 " />
+            ) : (
+              "Register"
+            )}
             <ChevronRight size={20} />
           </Button>
           <p className="text-center text-sm text-gray-600">

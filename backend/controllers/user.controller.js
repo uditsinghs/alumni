@@ -17,7 +17,7 @@ export const registerUser = async (req, res) => {
     const newUser = await User.create({
       name, email, password: hashedPassword, batch, branch, role
     })
-    return res.status(201).json({ message: "User registered successfully", success: true, })
+    return res.status(201).json({ message: "User registered successfully", success: true, newUser})
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -65,6 +65,15 @@ export const loginUser = async (req, res) => {
     return res.status(200).json({
       message: "Login successful",
       success: true,
+      user: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        branch:user.branch,
+        batch:user.batch,
+        isVarified:user.isVarified,
+
+      }
     });
 
   } catch (error) {

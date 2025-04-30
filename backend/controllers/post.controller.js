@@ -102,7 +102,7 @@ export const editPost = async (req, res) => {
 
 export const getPosts = async (req, res) => {
   try {
-    const allPosts = await Post.find({});
+    const allPosts = await Post.find({})
     if (allPosts.length === 0) {
       return res.status(400).json({ message: "post not found", success: false })
     }

@@ -1,15 +1,43 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom"; // 👈 import Link
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "@/features/auth/authService";
+import { logout } from "@/features/auth/authSlice";
+import { toast } from "sonner";
 
 const Navbar = () => {
+  const dispatch = useDispatch();
+  const { isLoggedIn, user } = useSelector((state) => state.auth);
+  const role = user?.role;
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const role = "user"; // "admin" ya "user"
-  const user = false;
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+
+  const handleLogout = async () => {
+    const data = await logoutUser();
+    dispatch(logout());
+    if (data.success) toast.success(data.message);
   };
+
+  // Common Links
+  const baseLinks = [
+    { to: "/", label: "Home" },
+    { to: "/alumni-list", label: "Alumni List" },
+    { to: "/profile", label: "Profile" },
+    { to: "/posts", label: "Posts" },
+  ];
+
+  // Role-Specific Links
+  const adminLinks = [{ to: "/admin/dashboard", label: "Dashboard" }];
+
+  const alumniLinks = [{ to: "/alumni/dashboard", label: "Dashboard" }];
+
+  const navLinks = [
+    ...baseLinks,
+    ...(role === "admin" ? adminLinks : []),
+    ...(role === "alumni" ? alumniLinks : []),
+  ];
 
   return (
     <nav className="bg-white shadow-md">
@@ -19,62 +47,34 @@ const Navbar = () => {
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQpP2D3Db0eXFyxHKyxGxTmnX4tTXIeRTvGg&s"
             alt="logo"
-            className="w-20 "
+            className="w-20"
           />
         </div>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
-          <Link to="/" className="hover:text-blue-600 transition-colors">
-            Home
-          </Link>
-          <Link
-            to="/alumni-list"
-            className="hover:text-blue-600 transition-colors"
-          >
-            Alumni List
-          </Link>
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="hover:text-blue-600 transition-colors"
+            >
+              {link.label}
+            </Link>
+          ))}
 
-          {role === "admin" ? (
-            <>
-              <Link
-                to="/admin/dashboard"
-                className="hover:text-blue-600 transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/admin/events"
-                className="hover:text-blue-600 transition-colors"
-              >
-                Manage Events
-              </Link>
-            </>
-          ) : role === "user" ? (
-            <>
-              <Link
-                to="/events"
-                className="hover:text-blue-600 transition-colors"
-              >
-                Events
-              </Link>
-              <Link
-                to="/profile"
-                className="hover:text-blue-600 transition-colors"
-              >
-                Profile
-              </Link>
-            </>
-          ) : null}
-          {user ? (
-            <button className="border px-4 py-1 rounded hover:bg-red-600 hover:text-white transition">
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="border px-4 py-1 rounded hover:bg-red-600 hover:text-white transition"
+            >
               Logout
             </button>
           ) : (
-            <Link to='/login'>
+            <Link to="/login">
               <button className="border px-4 py-1 rounded hover:bg-blue-600 hover:text-white transition">
-              Login
-            </button>
+                Login
+              </button>
             </Link>
           )}
         </div>
@@ -87,71 +87,40 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden bg-white shadow-md transform transition-all duration-300 ease-in-out ${
+        className={`md:hidden bg-white shadow-md transition-all duration-300 ease-in-out ${
           menuOpen
             ? "max-h-[500px] opacity-100"
             : "max-h-0 opacity-0 overflow-hidden"
         }`}
       >
         <div className="flex flex-col items-start p-4 gap-4">
-          <Link to="/" className="hover:text-blue-600" onClick={toggleMenu}>
-            Home
-          </Link>
-          <Link
-            to="/alumni-list"
-            className="hover:text-blue-600"
-            onClick={toggleMenu}
-          >
-            Alumni List
-          </Link>
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={toggleMenu}
+              className="hover:text-blue-600"
+            >
+              {link.label}
+            </Link>
+          ))}
 
-          {role === "admin" ? (
-            <>
-              <Link
-                to="/admin/dashboard"
-                className="hover:text-blue-600"
-                onClick={toggleMenu}
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/admin/events"
-                className="hover:text-blue-600"
-                onClick={toggleMenu}
-              >
-                Manage Events
-              </Link>
-            </>
-          ) : role === "user" ? (
-            <>
-              <Link
-                to="/events"
-                className="hover:text-blue-600"
-                onClick={toggleMenu}
-              >
-                Events
-              </Link>
-              <Link
-                to="/profile"
-                className="hover:text-blue-600"
-                onClick={toggleMenu}
-              >
-                Profile
-              </Link>
-            </>
-          ) : null}
-
-          {user ? (
-            <button className="border px-4 py-1 rounded hover:bg-red-600 hover:text-white transition">
+          {isLoggedIn ? (
+            <button
+              onClick={() => {
+                toggleMenu();
+                handleLogout();
+              }}
+              className="border px-4 py-1 rounded hover:bg-red-600 hover:text-white transition"
+            >
               Logout
             </button>
           ) : (
-            <Link to='/login'>
+            <Link to="/login" onClick={toggleMenu}>
               <button className="border px-4 py-1 rounded hover:bg-blue-600 hover:text-white transition">
-              Login
-            </button>
+                Login
+              </button>
             </Link>
-          
           )}
         </div>
       </div>
