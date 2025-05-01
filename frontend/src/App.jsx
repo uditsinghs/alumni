@@ -22,6 +22,10 @@ import ManagePosts from "./pages/alumni/ManagePosts";
 import ManageJobs from "./pages/alumni/ManageJobs";
 import Posts from "./pages/Posts";
 import DetailPost from "./pages/DetailPost";
+import EventDetailPage from "./pages/homePage/EventDetailPage";
+import Job from "./pages/Job";
+import JobDetailPage from "./pages/JobDetailPage";
+import UserView from "./pages/UserView";
 
 function App() {
   const dispatch = useDispatch();
@@ -51,8 +55,12 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/alumni-list" element={<AlumniList />} />
         <Route path="/posts" element={<Posts />} />
+        <Route path="/jobs" element={<Job />} />
         <Route path="/detailpost/:pid" element={<DetailPost />} />
+        <Route path="/eventdetail/:eventId" element={<EventDetailPage />} />
+        <Route path="/jobdetail/:jobId" element={<JobDetailPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/view/profile/:userid" element={<UserView />} />
         <Route path="/register" element={<Register />} />
 
         {/* Admin Dashboard Routes */}

@@ -92,18 +92,17 @@ export const deleteEvent = async (req, res) => {
   try {
     const { eventId } = req.params;
     if (!eventId) {
+      return res.status(404).json({ message: "No eventId found", success: false });
+    }
 
-      return res.status(404).json({ message: "No eventId found", success: false })
-    }
-    const event = await Event.findById(eventId);
+    const event = await Event.findByIdAndDelete(eventId);
     if (!event) {
-      return res.status(404).json({ message: "No event found", success: false })
+      return res.status(404).json({ message: "No event found", success: false });
     }
-    event.deleteOne();
-    await event.save()
-    return res.status(200).json({ success: true, message: "Event deleted successfully" })
+
+    return res.status(200).json({ success: true, message: "Event deleted successfully" });
   } catch (error) {
-    console.error("Error creating event:", error);
+    console.error("Error deleting event:", error);
     return res.status(500).json({
       message: error.message || "Internal Server Error",
       success: false,
@@ -114,11 +113,13 @@ export const deleteEvent = async (req, res) => {
 export const updateEvent = async (req, res) => {
   try {
     const { title, description, date, location } = req.body;
+    console.log(title, description, date, location);
+
     const image = req.file;
     const { eventId } = req.params;
     if (!eventId) {
-      
-  return res.status(404).json({ message: "No eventId found", success: false })
+
+      return res.status(404).json({ message: "No eventId found", success: false })
     }
     const event = await Event.findById(eventId);
     if (!event) {
@@ -127,19 +128,19 @@ export const updateEvent = async (req, res) => {
 
     // if any value exist then update that value;
     if (title) {
-      event.title = title;
+      event.title = title || event.title;
 
     }
     if (description) {
-      event.description = description;
+      event.description = description || event.description;
 
     }
     if (date) {
-      event.date = date;
+      event.date = date || event.date;
 
     }
     if (location) {
-      event.location = location;
+      event.location = location || event.location;
     }
     if (image) {
       const cloudinaryResponse = await uploadImageOnCloudinary(image.path);

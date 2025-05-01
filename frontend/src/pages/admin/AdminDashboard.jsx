@@ -1,8 +1,11 @@
+import StatsSection from "../homePage/StatsSection"
 
 
 const DashBoard = () => {
   return (
-    <div>DashBoard</div>
+    <div>
+      <StatsSection />
+    </div>
   )
 }
 

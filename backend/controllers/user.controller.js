@@ -2,6 +2,8 @@ import { User } from "../models/user.model.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { uploadImageOnCloudinary } from "../utils/cloudinary.js";
+import { Job } from "../models/job.model.js";
+import { Event } from "../models/event.model.js";
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, batch, branch, role } = req.body;
@@ -17,7 +19,7 @@ export const registerUser = async (req, res) => {
     const newUser = await User.create({
       name, email, password: hashedPassword, batch, branch, role
     })
-    return res.status(201).json({ message: "User registered successfully", success: true, newUser})
+    return res.status(201).json({ message: "User registered successfully", success: true, newUser })
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -69,9 +71,9 @@ export const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        branch:user.branch,
-        batch:user.batch,
-        isVarified:user.isVarified,
+        branch: user.branch,
+        batch: user.batch,
+        isVarified: user.isVarified,
 
       }
     });
@@ -134,11 +136,13 @@ export const getAllAlumni = async (req, res) => {
 };
 export const getUnVerifiedAlumnies = async (req, res) => {
   try {
-    // Find alumni who are not verified
-    const unVerifiedAlumnies = await User.find({ role: "alumni", isVerified: false }).select("-password");
+    const unVerifiedAlumnies = await User.find({
+      role: "alumni",
+      isVarified: false
+    }).select("-password").lean();
 
     if (unVerifiedAlumnies.length === 0) {
-      return res.status(400).json({ message: "No unverified alumni found", success: false });
+      return res.status(404).json({ message: "No unverified alumni found", success: false });
     }
 
     return res.status(200).json({
@@ -157,16 +161,13 @@ export const getUnVerifiedAlumnies = async (req, res) => {
 
 
 
+
 // need to update this controller i will do this later
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const { currentCompany, jobTitle, location, bio } = req.body;
     const profileImage = req.file; // multer file
-
-    if (!profileImage) {
-      return res.status(400).json({ message: "Profile image not found", success: false });
-    }
 
     const user = await User.findById(userId);
     if (!user) {
@@ -180,16 +181,23 @@ export const updateProfile = async (req, res) => {
     if (user.bio === undefined) user.bio = "";
     if (user.profileImage.url === undefined && user.profileImage.public_id === undefined) user.profileImage.url = ""
 
-    const cloudinaryResponse = await uploadImageOnCloudinary(profileImage.path)
-    if (!cloudinaryResponse) {
-      return res.status(400).json({ message: "Error uploading image on cloudinary", success: false });
+    if (profileImage) {
+
+      const cloudinaryResponse = await uploadImageOnCloudinary(profileImage.path)
+      if (!cloudinaryResponse) {
+        return res.status(400).json({ message: "Error uploading image on cloudinary", success: false });
+        user.profileImage = {
+          url: cloudinaryResponse.secure_url,
+          public_id: cloudinaryResponse.public_id
+        }
+      }
     }
     // Now update
     user.currentCompany = currentCompany || user.currentCompany;
     user.jobTitle = jobTitle || user.jobTitle;
     user.location = location || user.location;
     user.bio = bio || user.bio;
-    user.profileImage = profileImage.filename;
+
 
     await user.save();
 
@@ -330,8 +338,9 @@ export const changeUserRole = async (req, res) => {
   try {
     const { userId } = req.params;
     const { role } = req.body;
+    console.log(role);
+    
     if (!role) {
-
       return res.status(400).json({ message: "role not found", success: false });
     }
     if (!userId) {
@@ -352,6 +361,33 @@ export const changeUserRole = async (req, res) => {
       message: error.message || "Internal server error",
       success: false,
       error
+    });
+  }
+};
+
+
+
+export const getStats = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalAlumni = await User.countDocuments({ role: "alumni" });
+    const totalJobs = await Job.countDocuments();
+    const totalEvents = await Event.countDocuments();
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        totalUsers,
+        totalJobs,
+        totalEvents,
+        totalAlumni
+      },
+    });
+  } catch (error) {
+    console.error("Stats error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch statistics",
     });
   }
 };

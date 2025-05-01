@@ -1,9 +1,12 @@
-import React from 'react'
+import React from "react";
+import StatsSection from "../homePage/StatsSection";
 
 const AlumniDashboard = () => {
   return (
-    <div>AlumniDashboard</div>
-  )
-}
+    <div>
+      <StatsSection />
+    </div>
+  );
+};
 
-export default AlumniDashboard
+export default AlumniDashboard;

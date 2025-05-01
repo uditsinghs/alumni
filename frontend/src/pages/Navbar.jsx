@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "@/features/auth/authService";
 import { logout } from "@/features/auth/authSlice";
@@ -11,21 +11,23 @@ const Navbar = () => {
   const { isLoggedIn, user } = useSelector((state) => state.auth);
   const role = user?.role;
   const [menuOpen, setMenuOpen] = useState(false);
-
+  const navigate = useNavigate();
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   const handleLogout = async () => {
     const data = await logoutUser();
     dispatch(logout());
     if (data.success) toast.success(data.message);
+    navigate("/login");
   };
 
   // Common Links
   const baseLinks = [
     { to: "/", label: "Home" },
     { to: "/alumni-list", label: "Alumni List" },
-    { to: "/profile", label: "Profile" },
     { to: "/posts", label: "Posts" },
+    { to: "/jobs", label: "Jobs" },
+    { to: "/profile", label: "Profile" },
   ];
 
   // Role-Specific Links
