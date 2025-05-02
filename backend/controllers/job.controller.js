@@ -48,7 +48,7 @@ export const createJob = async (req, res) => {
 
 export const getJobs = async (req, res) => {
   try {
-    const allJobs = await Job.find({}).populate("postedBy","name email")
+    const allJobs = await Job.find({}).populate("postedBy", "name email")
     if (allJobs.length === 0) {
       return res.status(400).json({
         message: "No jobs available..!",
@@ -76,7 +76,7 @@ export const getJob = async (req, res) => {
         success: false,
       });
     }
-    const job = await Job.findById(jobId).populate("postedBy","name email")
+    const job = await Job.findById(jobId).populate("postedBy", "name email")
     if (!job) {
       return res.status(404).json({
         message: "job not found",
@@ -136,15 +136,8 @@ export const deleteJob = async (req, res) => {
         success: false,
       });
     }
-    const job = await Job.findById(jobId);
-    if (!job) {
-      return res.status(404).json({
-        message: "job not found",
-        success: false,
-      });
-    }
-    job.deleteOne();
-    await job.save();
+    await Job.findByIdAndDelete(jobId);
+    return res.status(200).json({ message: "Job deleted Successfully", success: true })
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message || "Internal server error", success: false, error })

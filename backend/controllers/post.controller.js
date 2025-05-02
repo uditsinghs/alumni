@@ -48,12 +48,8 @@ export const deletepost = async (req, res) => {
     if (!postId) {
       return res.status(404).json({ message: "postId not found", success: false })
     }
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "post not found", success: false })
-    }
-    post.deleteOne();
-    await post.save()
+
+    await Post.findByIdAndDelete(postId)
     return res.status(200).json({ message: "Post deleted successfully", success: true })
   } catch (error) {
     console.log(error);
