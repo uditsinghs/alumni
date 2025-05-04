@@ -99,7 +99,7 @@ export const editPost = async (req, res) => {
 
 export const getPosts = async (req, res) => {
   try {
-    const allPosts = await Post.find({})
+    const allPosts = await Post.find({}).populate("comments.user", "name profileImage")
     if (allPosts.length === 0) {
       return res.status(400).json({ message: "post not found", success: false })
     }
@@ -195,37 +195,26 @@ export const likeAndDislikePost = async (req, res) => {
 export const commentPost = async (req, res) => {
   try {
     const { comment } = req.body;
-
     const userId = req.user.id;
     const { postId } = req.params;
-    if (!postId) {
-      return res.status(404).json({ message: "postId not found", success: false })
-    }
-    if (!userId) {
-      return res.status(404).json({ message: "userId not found", success: false })
-    }
+
     const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "post not found", success: false })
-    }
-    const postConetent = {
+    if (!post) return res.status(404).json({ success: false, message: "Post not found" });
+
+    const commentObj = {
       comment,
       user: userId,
+    };
 
-    }
-    post.comments.push(postConetent);
+    post.comments.push(commentObj);
     await post.save();
-    return res.status(200).json({ message: "comment post", success: true })
+    await post.populate("comments.user", "name profileImage"); // Populate after push
+
+    res.status(200).json({ success: true, message: "Comment posted", post });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: error.message || "Internal server error",
-      success: false,
-      error
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 
 
@@ -235,42 +224,24 @@ export const deleteComment = async (req, res) => {
     const { postId, commentId } = req.params;
     const userId = req.user.id;
 
-    // 1. Find the post
     const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: "Post not found", success: false });
+    if (!post) return res.status(404).json({ success: false, message: "Post not found" });
+
+    const comment = post.comments.id(commentId);
+    if (!comment) return res.status(404).json({ success: false, message: "Comment not found" });
+
+    if (comment.user.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
-    // 2. Find the comment
-    const comment = post.comments.find((c) => c._id.toString() === commentId);
-    if (!comment) {
-      return res.status(404).json({ message: "Comment not found", success: false });
-    }
-
-    // 3. Check authorization
-    if (comment.user.toString() !== userId && req.user.role !== 'admin') {
-      return res.status(403).json({ message: "You are not authorized to delete this comment", success: false });
-    }
-
-    // 4. Remove comment manually
-    post.comments = post.comments.filter(
-      (c) => c._id.toString() !== commentId
-    );
+    post.comments.pull(commentId);
 
     await post.save();
+    await post.populate("comments.user", "name profileImage");
 
-    return res.status(200).json({
-      message: "Comment deleted successfully",
-      success: true,
-    });
-
+    res.status(200).json({ success: true, message: "Comment deleted", post });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: error.message || "Internal server error",
-      success: false,
-      error
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+
 import { ChevronRight, Loader2 } from "lucide-react";
 import {
   Select,
@@ -8,11 +7,13 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from "./ui/select";
-import { Label } from "./ui/label";
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "@/features/auth/authService";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const Register = () => {
   const [formData, setFormData] = useState({

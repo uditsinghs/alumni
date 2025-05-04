@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+
+
 import { ChevronRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../features/auth/authSlice";
 import { loginUser } from "@/features/auth/authService";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const [input, setInput] = useState({

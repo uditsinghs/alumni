@@ -7,14 +7,16 @@ import Post from "./Post";
 const Posts = () => {
   const dispatch = useDispatch();
   const { posts } = useSelector((state) => state.post);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const fetchPosts = async () => {
       const data = await getAllPosts();
+      console.log("ffee", data);
       dispatch(getPost(data));
     };
     fetchPosts();
-  }, [dispatch]);
+  }, [dispatch,user]);
 
   return (
     <div className="min-h-screen p-4 bg-background text-foreground">

@@ -10,10 +10,9 @@ import { useEffect } from "react";
 import HomePage from "./pages/homePage/HomePage";
 import Profile from "./pages/Profile";
 import AlumniList from "./pages/homePage/AlumniList";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import Navbar from "./pages/Navbar";
-import Footer from "./pages/Footer";
+
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import DashboardLayout from "./layouts/DashboardLayout";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -31,13 +30,15 @@ import Job from "./pages/Job";
 import JobDetailPage from "./pages/JobDetailPage";
 import UserView from "./pages/UserView";
 
-import RoleBasedRoute from "./pages/RoleBasedRoute";
-import ProtectedRoute from "./pages/ProtectedRoute";
+import RoleBasedRoute from "./pages/Protection/RoleBasedRoute";
+import ProtectedRoute from "./pages/Protection/ProtectedRoute";
 
 import { getLoggedinUser } from "./features/auth/authService";
 import { getUser } from "./features/auth/authSlice";
 import Message from "./pages/Message";
-import AuthRedirectRoute from "./pages/AuthRedirectRoute";
+import AuthRedirectRoute from "./pages/Protection/AuthRedirectRoute";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 
 function App() {
   const dispatch = useDispatch();

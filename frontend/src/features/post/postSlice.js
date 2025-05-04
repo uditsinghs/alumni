@@ -10,16 +10,24 @@ export const postSlice = createSlice({
   initialState,
   reducers: {
     getPost: (state, action) => {
-      state.posts = action.payload;
+      state.posts = Array.isArray(action.payload) ? action.payload : [action.payload];
     },
     setMyPosts: (state, action) => {
       state.myPosts = action.payload;
     },
     deletePostSlice: (state, action) => {
       state.myPosts = state.myPosts.filter((post) => post._id !== action.payload)
-    }
+    },
+    updatePostAfterComment: (state, action) => {
+      const updatedPost = action.payload;
+      if (Array.isArray(state.posts)) {
+        state.posts = state.posts.map((p) =>
+          p._id === updatedPost._id ? updatedPost : p
+        );
+      }
+    },
   }
 })
 
-export const { getPost, setMyPosts ,deletePostSlice} = postSlice.actions;
+export const { getPost, setMyPosts, deletePostSlice, updatePostAfterComment } = postSlice.actions;
 export default postSlice.reducer;
