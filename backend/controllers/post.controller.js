@@ -96,6 +96,7 @@ export const editPost = async (req, res) => {
   }
 };
 
+
 export const getPosts = async (req, res) => {
   try {
     const allPosts = await Post.find({})
@@ -112,6 +113,24 @@ export const getPosts = async (req, res) => {
     });
   }
 };
+export const getAlumniPosts = async (req, res) => {
+  try {
+    const user = req.user.id;
+    const allPosts = await Post.find({ createdBy: user })
+    if (allPosts.length === 0) {
+      return res.status(400).json({ message: "post not found", success: false })
+    }
+    return res.status(200).json({ allPosts, success: true })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      success: false,
+      error
+    });
+  }
+};
+
 
 export const getSinglePost = async (req, res) => {
   try {

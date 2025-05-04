@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import UnverifiedAlumniCard from "./subComponent/UnverifiedAlumniCard";
 import AllUsersCard from "./subComponent/AllUsersCard";
 import {
@@ -9,13 +9,16 @@ import {
   verifyAlumni,
 } from "@/features/auth/authService";
 import { useDispatch, useSelector } from "react-redux";
-import { setAllusers } from "@/features/auth/authSlice";
+import {
+  setAllusers,
+  setUnverifiedusers,
+  setUnverifiedusersList,
+} from "@/features/auth/authSlice";
 import { toast } from "sonner";
 
 const ManageUsers = () => {
   const dispatch = useDispatch();
-  const [unverified, setUnverified] = useState([]);
-  const { allusers } = useSelector((state) => state.auth);
+  const { allusers, unverified } = useSelector((state) => state.auth);
 
   const fetchAllUsers = async () => {
     const res = await getAllUsers();
@@ -24,26 +27,23 @@ const ManageUsers = () => {
 
   const fetchUnverifiedUsers = async () => {
     const res = await getUnverifiedUsers();
-    setUnverified(res);
+    dispatch(setUnverifiedusersList(res));
   };
 
   useEffect(() => {
-    fetchAllUsers();
-    fetchUnverifiedUsers();
+    Promise.all([fetchAllUsers(), fetchUnverifiedUsers()]);
   }, []);
 
   const handleVerify = async (userId) => {
     const res = await verifyAlumni(userId);
     if (res.success) {
+      dispatch(setUnverifiedusers(userId));
+      fetchAllUsers();
       toast.success(res.message);
-      // fetchAllUsers();
-      fetchUnverifiedUsers();
     }
   };
 
   const handleChangeRole = async (userId, newRole) => {
-    console.log(newRole);
-    
     const res = await changeRole(userId, newRole);
     if (res.success) {
       toast.success(res.message);
@@ -90,8 +90,7 @@ const ManageUsers = () => {
               <AllUsersCard
                 key={user._id}
                 user={user}
-                onChangeRole={(role) =>handleChangeRole(user._id, role)
-                }
+                onChangeRole={(role) => handleChangeRole(user._id, role)}
                 onDelete={() => handleDelete(user._id)}
               />
             ))

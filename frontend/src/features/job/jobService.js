@@ -4,6 +4,10 @@ export const getJobs = async () => {
   const { data } = await axiosInstance.get('/jobs/getall');
   return data.allJobs;
 }
+export const getAlumniJobs = async () => {
+  const { data } = await axiosInstance.get('/jobs/getuserjob');
+  return data.allJobs;
+}
 export const getSingleJob = async (jobId) => {
   const { data } = await axiosInstance.get(`/jobs/get/${jobId}`);
   return data.job;

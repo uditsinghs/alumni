@@ -4,6 +4,7 @@ const initialState = {
   user: {},
   isLoggedIn: false,
   allusers: [],
+  unverified:[],
 }
 
 export const authSlice = createSlice({
@@ -27,10 +28,16 @@ export const authSlice = createSlice({
       state.allusers = action.payload;
 
     },
+    setUnverifiedusers: (state, action) => {
+      state.unverified = state.unverified.filter((user) => user._id !== action.payload);
+    },
+    setUnverifiedusersList: (state, action) => {
+      state.unverified = action.payload;
+    }
   },
 })
 
 
-export const { login, getUser, logout ,setAllusers} = authSlice.actions
+export const { login, getUser, logout ,setAllusers,setUnverifiedusers,setUnverifiedusersList} = authSlice.actions
 
 export default authSlice.reducer

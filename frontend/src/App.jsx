@@ -1,4 +1,12 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+
+} from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+
 import HomePage from "./pages/homePage/HomePage";
 import Profile from "./pages/Profile";
 import AlumniList from "./pages/homePage/AlumniList";
@@ -13,13 +21,9 @@ import ManageEvents from "./pages/admin/ManageEvents";
 import ManageUsers from "./pages/admin/ManageUsers";
 
 import AlumniDashboard from "./pages/alumni/AlumniDashboard";
-
-import { useDispatch, useSelector } from "react-redux";
-import { getLoggedinUser } from "./features/auth/authService";
-import { getUser } from "./features/auth/authSlice";
-import { useEffect } from "react";
 import ManagePosts from "./pages/alumni/ManagePosts";
 import ManageJobs from "./pages/alumni/ManageJobs";
+
 import Posts from "./pages/Posts";
 import DetailPost from "./pages/DetailPost";
 import EventDetailPage from "./pages/homePage/EventDetailPage";
@@ -27,16 +31,21 @@ import Job from "./pages/Job";
 import JobDetailPage from "./pages/JobDetailPage";
 import UserView from "./pages/UserView";
 
+import RoleBasedRoute from "./pages/RoleBasedRoute";
+import ProtectedRoute from "./pages/ProtectedRoute";
+
+import { getLoggedinUser } from "./features/auth/authService";
+import { getUser } from "./features/auth/authSlice";
+import Message from "./pages/Message";
+import AuthRedirectRoute from "./pages/AuthRedirectRoute";
+
 function App() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const role = user?.role;
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const user = await getLoggedinUser();
-
         dispatch(getUser(user));
       } catch (error) {
         console.log("User not logged in or session expired", error);
@@ -48,40 +57,97 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
+      {user && <Navbar />}
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />    
+
+        <Route
+          path="/login"
+          element={
+            <AuthRedirectRoute>
+              <Login />
+            </AuthRedirectRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <AuthRedirectRoute>
+              <Register />
+            </AuthRedirectRoute>
+          }
+        />
+
+        <Route path="/message" element={<Message />} />
         <Route path="/alumni-list" element={<AlumniList />} />
         <Route path="/posts" element={<Posts />} />
         <Route path="/jobs" element={<Job />} />
-        <Route path="/detailpost/:pid" element={<DetailPost />} />
         <Route path="/eventdetail/:eventId" element={<EventDetailPage />} />
-        <Route path="/jobdetail/:jobId" element={<JobDetailPage />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/view/profile/:userid" element={<UserView />} />
-        <Route path="/register" element={<Register />} />
 
-        {/* Admin Dashboard Routes */}
-        {role === "admin" && (
-          <Route path="/admin" element={<DashboardLayout />}>
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="events" element={<ManageEvents />} />
-            <Route path="users" element={<ManageUsers />} />
-          </Route>
-        )}
+        {/* Protected Routes */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/detailpost/:pid"
+          element={
+            <ProtectedRoute>
+              <DetailPost />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobdetail/:jobId"
+          element={
+            <ProtectedRoute>
+              <JobDetailPage />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Alumni Dashboard Routes */}
-        {role === "alumni" && (
-          <Route path="/alumni" element={<DashboardLayout />}>
-            <Route path="dashboard" element={<AlumniDashboard />} />
-            <Route path="manageposts" element={<ManagePosts />} />
-            <Route path="managejobs" element={<ManageJobs></ManageJobs>} />
-          </Route>
-        )}
+        {/* Admin Routes */}
+        <Route
+          path="/admin/*"
+          element={
+            <RoleBasedRoute role="admin">
+              <DashboardLayout />
+            </RoleBasedRoute>
+          }
+        >
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="events" element={<ManageEvents />} />
+          <Route path="users" element={<ManageUsers />} />
+        </Route>
+
+        {/* Alumni Routes */}
+        <Route
+          path="/alumni/*"
+          element={
+            <RoleBasedRoute role="alumni">
+              <DashboardLayout />
+            </RoleBasedRoute>
+          }
+        >
+          <Route path="dashboard" element={<AlumniDashboard />} />
+          <Route path="manageposts" element={<ManagePosts />} />
+          <Route path="managejobs" element={<ManageJobs />} />
+        </Route>
       </Routes>
-      <Footer />
+      {user && <Footer />}
     </Router>
   );
 }

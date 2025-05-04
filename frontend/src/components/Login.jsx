@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { ChevronRight, Eye, EyeOff, Loader2 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../features/auth/authSlice";
 import { loginUser } from "@/features/auth/authService";
 import { toast } from "sonner";
@@ -15,12 +15,19 @@ const Login = () => {
     password: "",
   });
 
-  const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    // If the user is already logged in, and is verified, redirect to homepage
+    if (user?.role === "alumni" && !user?.isVarified) {
+      return <Navigate to="/message" />;
+    }
+  }, [user?.isVarified, user?.role]);
 
   const getValueHandler = (e) => {
     const { name, value } = e.target;
@@ -34,29 +41,28 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setIsError(false);
       setIsLoading(true);
       const data = await loginUser(input);
 
-      dispatch(login(data.user));
       if (data.success) {
         setIsLoading(false);
-        toast.success(data?.message || "login success");
-        setInput({
-          name: "",
-          email: "",
-          password: "",
-        });
+        toast.success("Login successful");
+        const userData = data?.user;
+        dispatch(login(userData));
+
+        if (userData.role === "alumni" && !userData.isVarified) {
+          toast.info("Redirecting to verification page");
+          navigate("/message");
+          return;
+        }
+
+        navigate("/");
       }
-      navigate("/");
     } catch (error) {
-      setIsError(true);
-      console.error(error);
+      setIsLoading(false);
       toast.error(error?.response?.data?.message || "Login failed");
     }
   };
-
-  if (isError) return <p>something went wrong</p>;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-100 to-purple-200 p-4">

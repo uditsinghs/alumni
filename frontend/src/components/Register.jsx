@@ -49,11 +49,7 @@ const Register = () => {
           branch: "",
         });
       }
-      if (data.newUser.role === "alumni") {
-        navigate("/message");
-      } else {
-        navigate("/login");
-      }
+      navigate("/login");
     } catch (error) {
       setIsError(true);
       console.error(error);

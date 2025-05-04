@@ -44,10 +44,10 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "User not found. Please register", success: false });
     }
 
-    // If user is alumni and not verified, show a message
-    if (user.role === "alumni" && !user.isVarified) {
-      return res.status(400).json({ message: "Wait for verification ☹", success: false });
-    }
+    // // If user is alumni and not verified, show a message
+    // if (user.role === "alumni" && !user.isVarified) {
+    //   return res.status(400).json({ message: "Wait for verification ☹", success: false });
+    // }
 
     // Compare password
     const isPasswordMatch = await bcrypt.compare(password, user.password);
@@ -115,7 +115,7 @@ export const getLoggedinUser = async (req, res) => {
 
 export const getAllAlumni = async (req, res) => {
   try {
-    const alumnies = await User.find({ role: "alumni" }).select("-password");
+    const alumnies = await User.find({ role: "alumni", isVarified: true }).select("-password");
 
     if (alumnies.length === 0) {
       return res.status(400).json({ message: "No alumni found", success: false });
@@ -186,10 +186,11 @@ export const updateProfile = async (req, res) => {
       const cloudinaryResponse = await uploadImageOnCloudinary(profileImage.path)
       if (!cloudinaryResponse) {
         return res.status(400).json({ message: "Error uploading image on cloudinary", success: false });
-        user.profileImage = {
-          url: cloudinaryResponse.secure_url,
-          public_id: cloudinaryResponse.public_id
-        }
+      }
+
+      user.profileImage = {
+        url: cloudinaryResponse.secure_url,
+        public_id: cloudinaryResponse.public_id
       }
     }
     // Now update
@@ -339,7 +340,7 @@ export const changeUserRole = async (req, res) => {
     const { userId } = req.params;
     const { role } = req.body;
     console.log(role);
-    
+
     if (!role) {
       return res.status(400).json({ message: "role not found", success: false });
     }

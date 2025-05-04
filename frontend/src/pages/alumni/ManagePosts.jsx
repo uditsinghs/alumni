@@ -7,9 +7,9 @@ import {
   createPost,
   deletePost,
   updatePost,
-  getAllPosts,
+  getAlumniPosts,
 } from "@/features/post/postService";
-import { getPost } from "@/features/post/postSlice";
+import { deletePostSlice, setMyPosts } from "@/features/post/postSlice";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 
 const ManagePosts = () => {
-  const { posts } = useSelector((state) => state.post);
+  const { myPosts } = useSelector((state) => state.post);
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
@@ -28,17 +28,19 @@ const ManagePosts = () => {
 
   const fetchPosts = async () => {
     try {
-      const res = await getAllPosts();
-      dispatch(getPost(res));
+      const res = await getAlumniPosts();
+
+      dispatch(setMyPosts(res));
     } catch (error) {
       console.error("Error fetching posts", error);
     }
   };
-
+  console.log("Fetched my posts:", myPosts);
   const handleDelete = async (postId) => {
     const res = await deletePost(postId);
     if (res.success) {
       toast.success(res.message);
+      dispatch(deletePostSlice(postId));
       fetchPosts();
     } else {
       toast.error("Failed to delete post.");
@@ -71,7 +73,7 @@ const ManagePosts = () => {
         toast.error("Failed to update post.");
       }
     } catch (err) {
-      toast.error("Update error",err);
+      toast.error("Update error", err);
     }
   };
 
@@ -86,10 +88,10 @@ const ManagePosts = () => {
 
       <h2 className="text-2xl font-semibold">All Posts</h2>
       <div className="space-y-4">
-        {posts.length === 0 ? (
+        {myPosts?.length === 0 ? (
           <p className="text-gray-500">No posts found.</p>
         ) : (
-          posts.map((post) => (
+          myPosts?.map((post) => (
             <PostCard
               key={post._id}
               post={post}
@@ -115,7 +117,9 @@ const ManagePosts = () => {
             isUpdate
           />
           <DialogClose asChild>
-            <button className="mt-4 text-sm underline text-gray-600">Cancel</button>
+            <button className="mt-4 text-sm underline text-gray-600">
+              Cancel
+            </button>
           </DialogClose>
         </DialogContent>
       </Dialog>

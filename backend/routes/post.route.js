@@ -1,11 +1,12 @@
 import express from 'express';
 import { authenticateUser, authorizeRoles } from '../middlewares/isAuthenticated.js';
-import { commentPost, createPost, deleteComment, deletepost, editPost, getAllComment, getLikesCount, getPosts, getSinglePost, likeAndDislikePost } from '../controllers/post.controller.js';
+import { commentPost, createPost, deleteComment, deletepost, editPost, getAllComment, getAlumniPosts, getLikesCount, getPosts, getSinglePost, likeAndDislikePost } from '../controllers/post.controller.js';
 import { upload } from '../middlewares/multer.js';
 const router = express();
 
 router.post('/create', authenticateUser, authorizeRoles("alumni"), upload.single("image"), createPost);
 router.delete('/delete/:postId', authenticateUser, authorizeRoles("alumni"), deletepost);
+router.get('/getalumnipost', authenticateUser, authorizeRoles("alumni"), getAlumniPosts);
 router.put('/edit/:postId', authenticateUser, authorizeRoles("alumni"), upload.single("image"), editPost);
 router.get('/get', getPosts);
 router.get('/get/:postId', getSinglePost);

@@ -6,20 +6,23 @@ import { toast } from "sonner";
 import {
   createJob,
   deleteJob,
-  getJobs,
+  getAlumniJobs,
   updateJob,
 } from "@/features/job/jobService";
 import { useDispatch, useSelector } from "react-redux";
-import { setJobs } from "@/features/job/jobSlice";
+import { setMyJobs } from "@/features/job/jobSlice";
 
 const ManageJobs = () => {
   const [editingJob, setEditingJob] = useState(null);
   const [open, setOpen] = useState(false);
-  const { jobs } = useSelector((state) => state.job);
+  const { myJobs } = useSelector((state) => state.job);
   const dispatch = useDispatch();
+
+  const [job, setJob] = useState([]);
   const fetchJobs = async () => {
-    const res = await getJobs();
-    dispatch(setJobs(res));
+    const res = await getAlumniJobs();
+    dispatch(setMyJobs(res));
+    setJob(res);
   };
 
   const handleCreate = async (jobData) => {
@@ -34,6 +37,8 @@ const ManageJobs = () => {
     const res = await deleteJob(id);
     if (res?.success) {
       toast.success(res?.message);
+      const updatedJob = job.filter((job) => job._id !== id);
+      dispatch(setMyJobs(updatedJob));
     }
     fetchJobs();
   };
@@ -62,10 +67,10 @@ const ManageJobs = () => {
 
       <h2 className="text-2xl font-semibold">All Jobs</h2>
       <div className="space-y-4">
-        {jobs.length === 0 ? (
+        {myJobs?.length === 0 ? (
           <p className="text-gray-500">No jobs found.</p>
         ) : (
-          jobs.map((job) => (
+          myJobs?.map((job) => (
             <JobCard
               key={job._id}
               job={job}

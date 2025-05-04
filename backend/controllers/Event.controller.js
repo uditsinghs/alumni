@@ -218,7 +218,7 @@ export const getEventsRegisteredUsers = async (req, res) => {
       .select("title attendees")
       .populate({
         path: "attendees",
-        select: "name email", // Select what fields you want from User model
+        select: "name email", 
       });
 
     if (events.length === 0) {

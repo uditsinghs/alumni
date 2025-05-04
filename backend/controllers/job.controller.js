@@ -66,6 +66,28 @@ export const getJobs = async (req, res) => {
   }
 }
 
+export const getSpecificUserJobs = async (req, res) => {
+  try {
+    const user = req.user.id;
+    const allJobs = await Job.find({ postedBy: user })
+    if (allJobs.length === 0) {
+      return res.status(400).json({
+        message: "No jobs available..!",
+        success: false,
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      allJobs,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message || "Internal server error", success: false, error })
+
+  }
+}
+
+
 export const getJob = async (req, res) => {
   try {
     const { jobId } = req.params;
@@ -144,4 +166,7 @@ export const deleteJob = async (req, res) => {
 
   }
 }
+
+
+
 
