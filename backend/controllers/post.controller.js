@@ -97,20 +97,24 @@ export const editPost = async (req, res) => {
 };
 
 
+
 export const getPosts = async (req, res) => {
   try {
-    const allPosts = await Post.find({}).populate("comments.user", "name profileImage")
-    if (allPosts.length === 0) {
-      return res.status(400).json({ message: "post not found", success: false })
-    }
-    return res.status(200).json({ allPosts, success: true })
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: error.message || "Internal server error",
-      success: false,
-      error
+
+
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .populate("createdBy", "name profileImage")
+      .populate("comments.user", "name profileImage")
+
+
+    res.status(200).json({
+      success: true,
+      posts,
+
     });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 export const getAlumniPosts = async (req, res) => {
@@ -191,7 +195,6 @@ export const likeAndDislikePost = async (req, res) => {
   }
 };
 
-
 export const commentPost = async (req, res) => {
   try {
     const { comment } = req.body;
@@ -199,7 +202,9 @@ export const commentPost = async (req, res) => {
     const { postId } = req.params;
 
     const post = await Post.findById(postId);
-    if (!post) return res.status(404).json({ success: false, message: "Post not found" });
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
 
     const commentObj = {
       comment,
@@ -208,9 +213,19 @@ export const commentPost = async (req, res) => {
 
     post.comments.push(commentObj);
     await post.save();
-    await post.populate("comments.user", "name profileImage"); // Populate after push
 
-    res.status(200).json({ success: true, message: "Comment posted", post });
+    const updatedPost = await Post.findById(postId)
+      .populate("comments.user", "name profileImage");
+
+    const addedComment = updatedPost.comments[updatedPost.comments.length - 1];
+
+    res.status(200).json({
+      success: true,
+      message: "Comment posted",
+      addedComment,
+      updatedPost,
+      postId: post._id,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -313,5 +328,6 @@ export const getLikesCount = async (req, res) => {
     });
   }
 };
+
 
 

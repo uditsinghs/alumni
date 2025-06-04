@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 connectDB()
 app.listen(PORT, () => {
-  console.log(` Server is listening on Port ${PORT}`);
+  console.log(`Server is listening on Port ${PORT}`);
 });
 
 export default app;

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-
 import { ChevronRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,14 +21,14 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { user } = useSelector((state) => state.auth);
+  // const { user } = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    // If the user is already logged in, and is verified, redirect to homepage
-    if (user?.role === "alumni" && !user?.isVarified) {
-      return <Navigate to="/message" />;
-    }
-  }, [user?.isVarified, user?.role]);
+  // useEffect(() => {
+  //   // If the user is already logged in, and is verified, redirect to homepage
+  //   if (user?.role === "alumni" && !user?.isVarified) {
+  //     return <Navigate to="/message" />;
+  //   }
+  // }, [user?.isVarified, user?.role]);
 
   const getValueHandler = (e) => {
     const { name, value } = e.target;
@@ -45,23 +44,31 @@ const Login = () => {
     try {
       setIsLoading(true);
       const data = await loginUser(input);
-
+      setInput({
+        name: "",
+        email: "",
+        password: "",
+      });
       if (data.success) {
         setIsLoading(false);
         toast.success("Login successful");
         const userData = data?.user;
         dispatch(login(userData));
-
-        if (userData.role === "alumni" && !userData.isVarified) {
-          toast.info("Redirecting to verification page");
-          navigate("/message");
-          return;
-        }
-
         navigate("/");
+
+        // if (userData.role === "alumni" && !userData.isVarified) {
+        //   toast.info("Redirecting to verification page");
+        //   navigate("/message");
+        //   return;
+        // }
       }
     } catch (error) {
       setIsLoading(false);
+      setInput({
+        name: "",
+        email: "",
+        password: "",
+      });
       toast.error(error?.response?.data?.message || "Login failed");
     }
   };

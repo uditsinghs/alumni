@@ -40,14 +40,15 @@ export const loginUser = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
+    
     if (!user) {
       return res.status(400).json({ message: "User not found. Please register", success: false });
     }
 
-    // // If user is alumni and not verified, show a message
-    // if (user.role === "alumni" && !user.isVarified) {
-    //   return res.status(400).json({ message: "Wait for verification ☹", success: false });
-    // }
+    // If user is alumni and not verified, show a message
+    if (user.role === "alumni" && !user.isVarified) {
+      return res.status(400).json({ message: "Wait for verification ☹", success: false });
+    }
 
     // Compare password
     const isPasswordMatch = await bcrypt.compare(password, user.password);

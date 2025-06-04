@@ -1,23 +1,78 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageSquare, ThumbsUp } from "lucide-react";
-
+import { MessageSquare, ThumbsUp, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { getSinglePost } from "@/features/post/postService";
+import {
+  commentOnPost,
+  deleteCommentOnPost,
+  getSinglePost,
+  likeAndDislikePost,
+} from "@/features/post/postService";
+
+import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addComment,
+  deleteComment,
+  likeAndDislike,
+} from "@/features/post/postSlice";
 
 const DetailPost = () => {
   const navigate = useNavigate();
+  const disPatch = useDispatch();
   const { pid } = useParams();
   const [post, setPost] = useState({});
 
+  const fetchSinglePost = async () => {
+    const data = await getSinglePost(pid);
+    setPost(data);
+  };
   useEffect(() => {
-    const fetchSinglePost = async () => {
-      const data = await getSinglePost(pid);
-      setPost(data);
-    };
     fetchSinglePost();
   }, [pid]);
+
+  const [comment, setNewComment] = useState("");
+  const { user } = useSelector((state) => state.auth);
+console.log(user);
+
+  const handleAddComment = async () => {
+    if (!comment.trim()) return;
+    const res = await commentOnPost(post._id, comment);
+    if (res?.success) {
+      toast.message(res?.message);
+      disPatch(addComment(res));
+      fetchSinglePost()
+    }
+
+    setNewComment("");
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    const res = await deleteCommentOnPost(post._id, commentId);
+    if (res.success) {
+      toast.success(res?.message);
+      disPatch(deleteComment({ postId: post._id, commentId }));
+      fetchSinglePost()
+    }
+  };
+  const handleLikeAndDislikePost = async () => {
+    const res = await likeAndDislikePost(post._id);
+    if (res.success) {
+      toast.success(res?.message);
+      disPatch(likeAndDislike({ userId: user._id, postId: post._id }));
+      fetchSinglePost()
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto p-4">
@@ -25,24 +80,96 @@ const DetailPost = () => {
         ⬅ Back
       </Button>
 
-      <Card className="shadow-lg">
-        <CardContent className="p-4 space-y-4">
+      <Card className="w-full max-w-xl mx-auto my-4 shadow-lg">
+        <CardContent className="p-4">
+          {/* Post Image */}
           {post?.image?.url && (
             <img
-              src={post?.image.url}
+              src={post?.image?.url}
               alt="Post"
-              className="w-full h-60 object-contain rounded-lg"
+              className="w-full h-32 object-contain rounded-lg mb-4"
             />
           )}
+          {/* Content */}
+          <p className="text-lg text-gray-800 mb-2">{post?.content}</p>
 
-          <p className="text-lg text-gray-800">{post?.content}</p>
+          {/* Post Stats */}
+          <div className="flex items-center gap-6 text-gray-600 text-sm mb-4">
+            <div className="flex items-center gap-1 ">
+              <button
+                onClick={handleLikeAndDislikePost}
+                className="cursor-pointer"
+              >
+                {post?.likes?.includes(user._id) ? (
+                  <ThumbsUp size={16} className="text-red-700" />
+                ) : (
+                  <ThumbsUp size={16} />
+                )}
+              </button>
+              <span>{post?.likes?.length} Likes</span>
+            </div>
 
-          <div className="flex items-center gap-2 text-gray-600">
-            <ThumbsUp size={16} />
-            <span>{post?.likes?.length} Likes</span>
-            <div className="flex gap-2 items-center">
-              <MessageSquare size={16} />
-              {post?.comments?.length} Comments
+            <div className="flex items-center gap-1">
+              <Dialog>
+                <DialogTrigger className="flex gap-2 text-sm font-medium hover:underline cursor-pointer">
+                  <MessageSquare size={16} className="" />
+                  {post?.comments?.length} Comments
+                </DialogTrigger>
+          
+
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Comments</DialogTitle>
+                  </DialogHeader>
+
+                  {/* Comments List - Scrollable */}
+                  <div className="max-h-[200px] overflow-y-auto pr-2 space-y-3">
+                    {post?.comments?.map((cmt) => (
+                      <div
+                        key={cmt._id}
+                        className="flex items-start gap-10 p-2 rounded bg-muted/30"
+                      >
+                        <div>
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={cmt?.user?.profileImage?.url} />
+                            <AvatarFallback>U</AvatarFallback>
+                          </Avatar>
+                          <p>{cmt?.user?.name}</p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm">{cmt.comment}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(cmt.createdAt).toLocaleString()}
+                          </p>
+
+                          {/* 👇 Only show for the logged-in user's comment */}
+                          {user?._id === cmt.user._id && (
+                            <button
+                              onClick={() => handleDeleteComment(cmt._id)}
+                              className="text-red-500 hover:text-red-700 ml-2"
+                              title="Delete comment"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Add New Comment */}
+                  <div className="flex gap-2 mt-4">
+                    <Input
+                      value={comment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Write a comment..."
+                      className="flex-1"
+                    />
+                    <Button onClick={handleAddComment}>Post</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
             <span className="ml-auto text-xs text-muted-foreground">

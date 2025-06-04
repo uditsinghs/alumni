@@ -1,7 +1,7 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import authReducer from './features/auth/authSlice';
 import postReducer from './features/post/postSlice';
-import jobReducer from './features/job/jobSlice'; // ✅ Correct this import
+import jobReducer from './features/job/jobSlice'; 
 import eventReducer from './features/event/eventSlice';
 
 import storage from 'redux-persist/lib/storage';
@@ -15,7 +15,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   post: postReducer,
-  job: jobReducer,     // ✅ Now using correct reducer
+  job: jobReducer,    
   event: eventReducer,
 });
 

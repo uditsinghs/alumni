@@ -1,9 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 
@@ -39,6 +34,8 @@ import Message from "./pages/Message";
 import AuthRedirectRoute from "./pages/Protection/AuthRedirectRoute";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import { getAllPosts } from "./features/post/postService";
+import { getPost } from "./features/post/postSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -56,6 +53,13 @@ function App() {
     fetchUser();
   }, [dispatch]);
 
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const data = await getAllPosts();
+      dispatch(getPost(data));
+    };
+    fetchPosts();
+  }, [dispatch]);
   return (
     <Router>
       {user && <Navbar />}
@@ -68,14 +72,14 @@ function App() {
               <HomePage />
             </ProtectedRoute>
           }
-        />    
+        />
 
         <Route
           path="/login"
           element={
-            <AuthRedirectRoute>
+            // <AuthRedirectRoute>
               <Login />
-            </AuthRedirectRoute>
+            // </AuthRedirectRoute>
           }
         />
         <Route

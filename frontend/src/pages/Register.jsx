@@ -24,7 +24,7 @@ const Register = () => {
     batch: "",
     branch: "",
   });
-  const [isError, setIsError] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const handleChange = (e) => {
@@ -35,7 +35,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setIsError(false);
       setIsLoading(true);
       const data = await registerUser(formData);
       if (data.success) {
@@ -52,12 +51,11 @@ const Register = () => {
       }
       navigate("/login");
     } catch (error) {
-      setIsError(true);
+      setIsLoading(false)
       console.error(error);
       toast.error(error?.response?.data?.message || "Login failed");
     }
   };
-  if (isError) return <p>something went wrong</p>;
   return (
     <div className="flex min-h-screen  items-center w-full justify-center bg-gradient-to-br from-blue-100 to-purple-200 p-4">
       <div className="w-full max-w-sm bg-white/70 backdrop-blur-md p-6 rounded-xl shadow-2xl flex flex-col gap-6">

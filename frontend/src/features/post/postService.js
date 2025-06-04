@@ -1,8 +1,10 @@
 import axiosInstance from "@/utils/axios";
 
+
 export const getAllPosts = async () => {
-  const { data } = await axiosInstance.get('/posts/get');
-  return data.allPosts;
+  const { data } = await axiosInstance.get(`/posts/get`);
+  
+  return data;
 }
 export const getAlumniPosts = async () => {
   const { data } = await axiosInstance.get('/posts/getalumnipost  ');
@@ -41,6 +43,11 @@ export const commentOnPost = async (postId, comment) => {
 
 export const deletePost = async (postId) => {
   const { data } = await axiosInstance.delete(`/posts/delete/${postId}`);
+  return data;
+}
+
+export const likeAndDislikePost = async (postId) => {
+  const { data } = await axiosInstance.put(`/posts/like/${postId}`);
   return data;
 }
 
