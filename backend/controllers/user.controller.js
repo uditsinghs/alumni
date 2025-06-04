@@ -60,10 +60,12 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "2d" });
 
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 2 * 24 * 60 * 60 * 1000,
-    });
+   res.cookie("token", token, {
+  httpOnly: true,
+  secure: true,           
+  sameSite: "None",     
+  maxAge: 2 * 24 * 60 * 60 * 1000,
+});
 
     return res.status(200).json({
       message: "Login successful",
@@ -246,16 +248,18 @@ export const getSingleAlumni = async (req, res) => {
 
 export const LogoutUser = async (req, res) => {
   try {
-    res.cookie('token', "", {
-      ttpOnly: true,
-      maxAge: 2 * 24 * 60 * 60 * 1000,
-    }).status(200).json({ message: "Logout user", success: true })
+    res.cookie("token", "", {
+      httpOnly: true,       
+      secure: true,          
+      sameSite: "None",        
+      expires: new Date(0),  
+    }).status(200).json({ message: "Logout successful", success: true });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       message: error.message || "Internal server error",
       success: false,
-      error
+      error,
     });
   }
 };
