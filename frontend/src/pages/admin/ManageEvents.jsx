@@ -30,7 +30,6 @@ const ManageEvents = () => {
     const res = await deleteEvent(id);
     if (res?.success) {
       dispatch(removeEvent(id));
-      // refreshEvents();
       toast.success(res.message);
     }
   };
@@ -59,24 +58,30 @@ const ManageEvents = () => {
               <Card key={event._id}>
                 <CardContent className="p-4 space-y-2">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold">{event.title}</h3>
+                    <h3 className="text-xl font-semibold">
+                      {event.title.length > 10
+                        ? `${event.title.slice(0, 10)}...`
+                        : event.title}
+                    </h3>
                     <div className="space-x-2">
                       <Button
                         variant="outline"
                         onClick={() => handleEdit(event)}
                       >
-                        <Pencil size={16} className="mr-1" /> Edit
+                        <Pencil size={16} className="mr-1" />
                       </Button>
                       <Button
                         variant="destructive"
                         onClick={() => handleDelete(event._id)}
                       >
-                        <Trash2 size={16} className="mr-1" /> Delete
+                        <Trash2 size={16} className="mr-1" />
                       </Button>
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {event.description}
+                    {event.description.length > 20
+                      ? `${event.description.slice(0, 20)}...`
+                      : event.description}
                   </p>
                   <div className="text-sm">
                     <strong>Location:</strong> {event.location}

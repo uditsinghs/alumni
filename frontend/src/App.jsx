@@ -34,8 +34,8 @@ import Message from "./pages/Message";
 import AuthRedirectRoute from "./pages/Protection/AuthRedirectRoute";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import { getAllPosts } from "./features/post/postService";
-import { getPost } from "./features/post/postSlice";
+// import { getAllPosts } from "./features/post/postService";
+// import { getPost } from "./features/post/postSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -53,13 +53,6 @@ function App() {
     fetchUser();
   }, [dispatch]);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const data = await getAllPosts();
-      dispatch(getPost(data));
-    };
-    fetchPosts();
-  }, [dispatch]);
   return (
     <Router>
       {user && <Navbar />}

@@ -1,15 +1,24 @@
 import React from "react";
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react";
 
 const Footer = () => {
   return (
     <footer className="bg-gray-900 text-gray-300 py-8">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Brand/Logo */}
+        <div className="text-2xl font-bold text-blue-600">
+          <img
+            src="https://i.pinimg.com/474x/7c/5d/97/7c5d9752bc4630fa585cab73b50a66a7.jpg"
+            alt="logo"
+            className="w-20"
+          />
+        </div>
         <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Future University</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Future University
+          </h2>
           <p className="text-sm">
-            Empowering students to build the future through knowledge and innovation.
+            Empowering students to build the future through knowledge and
+            innovation.
           </p>
         </div>
 
@@ -17,10 +26,23 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-semibold text-white mb-2">Quick Links</h3>
           <ul className="space-y-1 text-sm">
-            <li><a href="/" className="hover:underline">Home</a></li>
-            <li><a href="/events" className="hover:underline">Events</a></li>
-            <li><a href="/alumni" className="hover:underline">Alumni</a></li>
-            <li><a href="/contact" className="hover:underline">Contact Us</a></li>
+            <li>
+              <a href="/" className="hover:underline">
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="/alumni-list" className="hover:underline">
+                Alumni
+              </a>
+            </li>
+            <li>
+              <a href="/contact" className="hover:underline">
+                Contact Us : 090123 13333 <br />
+                E-mail     : info@futureuniversity.in
+
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -28,10 +50,18 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-semibold text-white mb-2">Follow Us</h3>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-white"><Facebook size={20} /></a>
-            <a href="#" className="hover:text-white"><Twitter size={20} /></a>
-            <a href="#" className="hover:text-white"><Instagram size={20} /></a>
-            <a href="#" className="hover:text-white"><Linkedin size={20} /></a>
+            <a href="https://www.facebook.com/futureuniversitybly/" className="hover:text-white">
+              <Facebook size={20} />
+            </a>
+            <a href="https://www.youtube.com/@futureuniversitybareilly" className="hover:text-white">
+              <Youtube size={20} />
+            </a>
+            <a href="https://www.instagram.com/futureuniversitybly" className="hover:text-white">
+              <Instagram size={20} />
+            </a>
+            <a href="https://www.linkedin.com/company/future-university-bareilly/" className="hover:text-white">
+              <Linkedin size={20} />
+            </a>
           </div>
         </div>
       </div>

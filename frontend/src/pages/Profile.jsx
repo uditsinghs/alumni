@@ -10,6 +10,8 @@ import { getUser } from "@/features/auth/authSlice";
 
 const Profile = () => {
   const { user } = useSelector((state) => state.auth);
+  console.log(user);
+  
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     currentCompany: user.currentCompany || "",

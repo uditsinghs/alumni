@@ -1,18 +1,25 @@
-import { createSlice } from "@reduxjs/toolkit";
-
+import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
+import { getAllPosts } from "./postService";
 const initialState = {
   posts: [],
   myPosts: [],
+  loading: false,
+  error: null,
 }
 
+// Thunk to fetch posts
+export const fetchPosts = createAsyncThunk("post/fetchPosts", async (_, thunkAPI) => {
+  try {
+    const data = await getAllPosts();
+    return data.posts;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+  }
+});
 export const postSlice = createSlice({
   name: "post",
   initialState,
   reducers: {
-    getPost: (state, action) => {
-      state.posts = action.payload
-    },
-
     setMyPosts: (state, action) => {
       state.myPosts = action.payload;
     },
@@ -23,7 +30,7 @@ export const postSlice = createSlice({
 
 
     addComment: (state, action) => {
-      state.posts.posts = state.posts.posts.map((post) => {
+      state.posts = state.posts.map((post) => {
         if (post._id === action.payload.postId) {
           return {
             ...post,
@@ -34,7 +41,7 @@ export const postSlice = createSlice({
       });
     },
     deleteComment: (state, action) => {
-      state.posts.posts = state.posts.posts.map((post) => {
+      state.posts = state.posts.map((post) => {
         if (post._id === action.payload.postId) {
           return {
             ...post,
@@ -48,9 +55,9 @@ export const postSlice = createSlice({
     },
     likeAndDislike: (state, action) => {
       const { postId, userId } = action.payload;
-  
-   
-      state.posts.posts = state.posts.posts.map((post) => {
+
+
+      state.posts = state.posts.map((post) => {
         console.log(post);
         if (post._id === postId) {
           const alreadyLiked = post.likes.includes(userId);
@@ -66,8 +73,23 @@ export const postSlice = createSlice({
     }
 
 
-  }
+  },
+    extraReducers: (builder) => {
+    builder
+      .addCase(fetchPosts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.posts = action.payload;
+      })
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 })
 
-export const { getPost, setMyPosts, deletePostSlice, addComment, deleteComment, likeAndDislike } = postSlice.actions;
+export const { setMyPosts, deletePostSlice, addComment, deleteComment, likeAndDislike } = postSlice.actions;
 export default postSlice.reducer;

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { ChevronRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { login } from "../features/auth/authSlice";
 import { loginUser } from "@/features/auth/authService";
 import { toast } from "sonner";
@@ -19,16 +19,8 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  // const { user } = useSelector((state) => state.auth);
-
-  // useEffect(() => {
-  //   // If the user is already logged in, and is verified, redirect to homepage
-  //   if (user?.role === "alumni" && !user?.isVarified) {
-  //     return <Navigate to="/message" />;
-  //   }
-  // }, [user?.isVarified, user?.role]);
 
   const getValueHandler = (e) => {
     const { name, value } = e.target;

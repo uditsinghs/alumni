@@ -28,9 +28,12 @@ import {
 const Post = ({ post }) => {
   const disPatch = useDispatch();
   const { image, content, likes, comments, createdAt } = post;
+  
+   const truncatedContent =content.length > 60 ?   `${content.slice(0,60)}...` : content
+  
   const [comment, setNewComment] = useState("");
   const { user } = useSelector((state) => state.auth);
-  // const [localPost,setLocalPost] = useState(post)
+
   const handleAddComment = async () => {
     if (!comment.trim()) return;
     const res = await commentOnPost(post._id, comment);
@@ -69,14 +72,14 @@ const Post = ({ post }) => {
           />
         )}
         {/* Content */}
-        <p className="text-lg text-gray-800 mb-2">{content}</p>
+        <p className="text-lg text-gray-800 mb-2">{truncatedContent}</p>
 
         {/* Post Stats */}
         <div className="flex items-center gap-6 text-gray-600 text-sm mb-4">
           <div className="flex items-center gap-1 ">
             <button
               onClick={handleLikeAndDislikePost}
-              className="cursor-pointer"  
+              className="cursor-pointer"
             >
               {post.likes.includes(user._id) ? (
                 <ThumbsUp size={16} className="text-red-700" />
@@ -84,18 +87,20 @@ const Post = ({ post }) => {
                 <ThumbsUp size={16} />
               )}
             </button>
-            <span>{likes?.length} Likes</span>
+            <span>{likes?.length}</span>
           </div>
 
           <div className="flex items-center gap-1">
             <Dialog>
               <DialogTrigger className="flex gap-2 text-sm font-medium hover:underline cursor-pointer">
                 <MessageSquare size={16} className="" />
-                {comments?.length} Comments
+                {comments?.length}
               </DialogTrigger>
-              <Link to={`/detailpost/${post._id}`}>
-                <Button className="cursor-pointer">View</Button>
-              </Link>
+              <div>
+                <Link to={`/detailpost/${post._id}`}>
+                  <Button className="cursor-pointer">View</Button>
+                </Link>
+              </div>
 
               <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
@@ -110,10 +115,11 @@ const Post = ({ post }) => {
                       className="flex items-start gap-10 p-2 rounded bg-muted/30"
                     >
                       <div>
-                      
                         <Avatar className="h-6 w-6">
                           <AvatarImage src={cmt?.user?.profileImage?.url} />
-                          <AvatarFallback>{cmt?.user?.name.charAt(0)}</AvatarFallback>
+                          <AvatarFallback>
+                            {cmt?.user?.name.charAt(0)}
+                          </AvatarFallback>
                         </Avatar>
                         <p>{cmt?.user?.name}</p>
                       </div>
@@ -125,7 +131,7 @@ const Post = ({ post }) => {
                         </p>
 
                         {/* 👇 Only show for the logged-in user's comment */}
-                        {user?._id === cmt.user._id && (
+                        {user?._id === cmt.user?._id && (
                           <button
                             onClick={() => handleDeleteComment(cmt._id)}
                             className="text-red-500 hover:text-red-700 ml-2"

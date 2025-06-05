@@ -40,7 +40,7 @@ export const loginUser = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
-    
+
     if (!user) {
       return res.status(400).json({ message: "User not found. Please register", success: false });
     }
@@ -65,6 +65,9 @@ export const loginUser = async (req, res) => {
       maxAge: 2 * 24 * 60 * 60 * 1000,
     });
 
+
+
+
     return res.status(200).json({
       message: "Login successful",
       success: true,
@@ -75,6 +78,12 @@ export const loginUser = async (req, res) => {
         branch: user.branch,
         batch: user.batch,
         isVarified: user.isVarified,
+        _id: user._id,
+        bio: user.bio ? user.bio : "",
+        currentCompany: user.currentCompany ? user.currentCompany : "",
+        location: user.location ? user.location : "",
+        jobTitle: user.jobTitle ? user.jobTitle : "",
+
 
       }
     });

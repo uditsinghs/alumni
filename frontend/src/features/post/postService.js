@@ -11,12 +11,10 @@ export const getAlumniPosts = async () => {
   return data.allPosts;
 }
 
-
 export const getSinglePost = async (postId) => {
   const { data } = await axiosInstance.get(`/posts/get/${postId}`);
   return data.post;
 }
-
 export const createPost = async (postData) => {
   const { data } = await axiosInstance.post("/posts/create", 
     postData

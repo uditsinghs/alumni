@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 export default function HeroSection() {
   return (
-    <section className="w-full py-20 px-6 md:px-10 lg:px-20 bg-gradient-to-b from-white to-gray-50">
+    <section className="w-full py-20 px-6 md:px-10 lg:px-20">
       <div className="max-w-4xl mx-auto text-center">
         <motion.h1
           initial={{ opacity: 0, y: 40 }}

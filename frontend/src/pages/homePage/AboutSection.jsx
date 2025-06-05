@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 
 const AboutSection = () => {
   return (
-    <section className="w-full bg-gradient-to-b from-white to-gray-50 py-20 px-6 md:px-12 lg:px-20">
+    <section className="w-full  py-20 px-6 md:px-12 lg:px-20">
       <motion.div
         className="max-w-5xl mx-auto text-center"
         initial={{ opacity: 0, y: 40 }}

@@ -8,6 +8,9 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 const Event = ({ event }) => {
   const { image, title, description, date, location } = event;
+  let truncated =
+    description.length > 16 ? `${description.slice(0, 16)}...` : description;
+
   const [isApplied, setIsApplied] = useState(false);
   const handleRegisterUser = async (eventId) => {
     const data = await applyForEvent(eventId);
@@ -16,9 +19,12 @@ const Event = ({ event }) => {
       setIsApplied(true);
     } else {
       toast.error(data?.message);
+      
     }
   };
   const { user } = useSelector((state) => state.auth);
+  console.log("user==",user._id);
+  
   useEffect(() => {
     setIsApplied(event.attendees.includes(user._id));
   }, [event.attendees, user._id]);
@@ -34,10 +40,11 @@ const Event = ({ event }) => {
         )}
 
         <h2 className="text-xl font-semibold text-primary">{title}</h2>
-        <div className="flex justify-around ">
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-muted-foreground">{description}</p>
-
+        <div className="flex justify-around flex-col gap-4">
+          <div>
+            <p className="text-sm text-muted-foreground">{truncated}</p>
+          </div>
+          <div className="flex justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar size={16} />
               <span>{new Date(date).toLocaleDateString()}</span>
@@ -48,19 +55,21 @@ const Event = ({ event }) => {
               <span>{location}</span>
             </div>
           </div>
-          <div className="">
-            <Button
-              disabled={isApplied}
-              onClick={() => handleRegisterUser(event._id)}
-              className="mb-3 ml-2 hover:bg-blue-950 "
-            >
-              {isApplied ? "Applied" : "Apply"}
-            </Button>
-          </div>
-          <div className="">
-            <Link to={`/eventdetail/${event._id}`}>
-              <Button className=" mb-3 ml-2 hover:bg-blue-950 ">View</Button>
-            </Link>
+          <div className="flex justify-between">
+            <div className="">
+              <Button
+                disabled={isApplied}
+                onClick={() => handleRegisterUser(event._id)}
+                className="mb-3 ml-2 hover:bg-blue-950 "
+              >
+                {isApplied ? "Applied" : "Apply"}
+              </Button>
+            </div>
+            <div className="">
+              <Link to={`/eventdetail/${event._id}`}>
+                <Button className=" mb-3 ml-2 hover:bg-blue-950 ">View</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </CardContent>
