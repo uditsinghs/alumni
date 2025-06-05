@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000/api/v1",
+  baseURL: "https://alumni-1-nkxl.onrender.com/api/v1",
   withCredentials: true,
 })
 
