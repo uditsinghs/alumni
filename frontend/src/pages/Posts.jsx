@@ -1,12 +1,12 @@
-
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Post from "./Post";
 import { fetchPosts } from "@/features/post/postSlice";
 
 const Posts = () => {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const { posts, loading, error } = useSelector((state) => state.post);
+  console.log(posts);
 
   useEffect(() => {
     dispatch(fetchPosts());

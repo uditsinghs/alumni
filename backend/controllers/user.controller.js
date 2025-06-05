@@ -30,11 +30,10 @@ export const registerUser = async (req, res) => {
 
   }
 }
-
-
 export const loginUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Please provide all details", success: false });
     }
@@ -47,22 +46,33 @@ export const loginUser = async (req, res) => {
 
     // If user is alumni and not verified, show a message
     if (user.role === "alumni" && !user.isVarified) {
-      return res.status(400).json({ message: "Wait for verification ☹", success: false });
+      return res.status(403).json({ message: "Wait for verification ☹", success: false });
     }
 
     // Compare password
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
-      return res.status(400).json({ message: "Invalid credentials", success: false });
+      return res.status(401).json({ message: "Invalid credentials", success: false });
     }
 
+    // Check JWT_SECRET existence
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not defined in environment variables");
+    }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "2d" });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "2d" }
+    );
 
+    const isProduction = process.env.NODE_ENV === "production";
 
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 2 * 24 * 60 * 60 * 1000,
+      secure: isProduction, 
+      sameSite: isProduction ? "strict" : "lax",
     });
 
     return res.status(200).json({
@@ -75,16 +85,22 @@ export const loginUser = async (req, res) => {
         branch: user.branch,
         batch: user.batch,
         isVarified: user.isVarified,
-
+        _id: user._id,
+        bio: user.bio || "",
+        currentCompany: user.currentCompany || "",
+        location: user.location || "",
+        jobTitle: user.jobTitle || "",
       }
     });
 
   } catch (error) {
-    console.log(error);
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Login Error:", error);
+    }
     return res.status(500).json({
-      message: error.message || "Internal server error",
+      message: "Internal server error",
       success: false,
-      error,
+      error: process.env.NODE_ENV !== "production" ? error.message : undefined,
     });
   }
 };
@@ -247,10 +263,8 @@ export const getSingleAlumni = async (req, res) => {
 export const LogoutUser = async (req, res) => {
   try {
     res.cookie("token", "", {
-      httpOnly: true,       
-      secure: true,          
-      sameSite: "None",        
-      expires: new Date(0),  
+      httpOnly: true,
+      expires: new Date(0),
     }).status(200).json({ message: "Logout successful", success: true });
   } catch (error) {
     console.log(error);

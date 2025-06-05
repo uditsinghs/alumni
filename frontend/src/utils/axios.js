@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://alumni-backend-1-gr9f.onrender.com/api/v1",
+  baseURL: "http://localhost:3000/api/v1",
   withCredentials: true,
 })
 
