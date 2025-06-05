@@ -77,7 +77,11 @@ export const loginUser = async (req, res) => {
         branch: user.branch,
         batch: user.batch,
         isVarified: user.isVarified,
-        _id:user._id
+        _id:user._id,
+          bio:user.bio ? user.bio : "",
+        currentCompany:user.currentCompany ? user.currentCompany : "",
+        location:user.location ? user.location : "",
+        jobTitle:user.jobTitle ? user.jobTitle : "",
 
       }
     });
