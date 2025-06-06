@@ -60,7 +60,7 @@ const JobForm = ({ onSubmit, initialValues = {}, isUpdate = false }) => {
       />
       <input
         type="text"
-        placeholder="Applu-Link"
+        placeholder="job-Link"
         className="w-full border p-2 rounded"
         value={applyLink}
         onChange={(e) => setApplyLink(e.target.value)}
