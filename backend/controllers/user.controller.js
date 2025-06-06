@@ -75,7 +75,7 @@ export const loginUser = async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", 
 
     });
-      httpOnly: true,
+ 
    
     return res.status(200).json({
       message: "Login successful",
