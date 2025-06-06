@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import { uploadImageOnCloudinary } from "../utils/cloudinary.js";
 import { Job } from "../models/job.model.js";
 import { Event } from "../models/event.model.js";
+import { Post } from "../models/post.model.js";
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, batch, branch, role } = req.body;
@@ -334,10 +335,8 @@ export const getallusers = async (req, res) => {
   }
 };
 
-import User from "../models/User.js";
-import Post from "../models/Post.js";
-import Job from "../models/Job.js";
-import Event from "../models/Event.js";
+
+
 
 export const deleteUser = async (req, res) => {
   try {
