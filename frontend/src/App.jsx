@@ -34,45 +34,42 @@ import Message from "./pages/Message";
 import AuthRedirectRoute from "./pages/Protection/AuthRedirectRoute";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-// import { getAllPosts } from "./features/post/postService";
-// import { getPost } from "./features/post/postSlice";
-
 function App() {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { user, isLoading } = useSelector((state) => state.auth);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const user = await getLoggedinUser();
         dispatch(getUser(user));
       } catch (error) {
+        dispatch(getUser(null)); // <- important to stop loading
         console.log("User not logged in or session expired", error);
       }
     };
-
     fetchUser();
   }, [dispatch]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    ); 
+  }
 
   return (
     <Router>
       {user && <Navbar />}
       <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
-
+        {/* PUBLIC ROUTES */}
         <Route
           path="/login"
           element={
-            // <AuthRedirectRoute>
+            <AuthRedirectRoute>
               <Login />
-            // </AuthRedirectRoute>
+            </AuthRedirectRoute>
           }
         />
         <Route
@@ -83,15 +80,17 @@ function App() {
             </AuthRedirectRoute>
           }
         />
-
         <Route path="/message" element={<Message />} />
-        <Route path="/alumni-list" element={<AlumniList />} />
-        <Route path="/posts" element={<Posts />} />
-        <Route path="/jobs" element={<Job />} />
-        <Route path="/eventdetail/:eventId" element={<EventDetailPage />} />
-        <Route path="/view/profile/:userid" element={<UserView />} />
 
-        {/* Protected Routes */}
+        {/* PROTECTED */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/profile"
           element={
@@ -117,7 +116,7 @@ function App() {
           }
         />
 
-        {/* Admin Routes */}
+        {/* Admin */}
         <Route
           path="/admin/*"
           element={
@@ -131,7 +130,7 @@ function App() {
           <Route path="users" element={<ManageUsers />} />
         </Route>
 
-        {/* Alumni Routes */}
+        {/* Alumni */}
         <Route
           path="/alumni/*"
           element={
@@ -144,6 +143,13 @@ function App() {
           <Route path="manageposts" element={<ManagePosts />} />
           <Route path="managejobs" element={<ManageJobs />} />
         </Route>
+
+        {/* Optional public routes */}
+        <Route path="/alumni-list" element={<AlumniList />} />
+        <Route path="/posts" element={<Posts />} />
+        <Route path="/jobs" element={<Job />} />
+        <Route path="/eventdetail/:eventId" element={<EventDetailPage />} />
+        <Route path="/view/profile/:userid" element={<UserView />} />
       </Routes>
       {user && <Footer />}
     </Router>
