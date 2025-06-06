@@ -66,15 +66,17 @@ export const loginUser = async (req, res) => {
       { expiresIn: "2d" }
     );
 
-    const isProduction = process.env.NODE_ENV === "production";
+   
 
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: 2 * 24 * 60 * 60 * 1000,
-      secure: isProduction, 
-      sameSite: isProduction ? "strict" : "lax",
-    });
+       secure: process.env.NODE_ENV === "production", 
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", 
 
+    });
+      httpOnly: true,
+   
     return res.status(200).json({
       message: "Login successful",
       success: true,
