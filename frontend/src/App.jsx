@@ -35,29 +35,29 @@ import AuthRedirectRoute from "./pages/Protection/AuthRedirectRoute";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 function App() {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     try {
-  //       const user = await getLoggedinUser();
-  //       dispatch(getUser(user));
-  //     } catch (error) {
-  //       dispatch(getUser(null)); // <- important to stop loading
-  //       console.log("User not logged in or session expired", error);
-  //     }
-  //   };
-  //   fetchUser();
-  // }, [dispatch]);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await getLoggedinUser();
+        dispatch(getUser(user));
+      } catch (error) {
+        dispatch(getUser(null)); // <- important to stop loading
+        console.log("User not logged in or session expired", error);
+      }
+    };
+    fetchUser();
+  }, [dispatch]);
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       Loading...
-  //     </div>
-  //   ); 
-  // }
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    ); 
+  }
 
   return (
     <Router>
