@@ -5,7 +5,7 @@ const initialState = {
   isLoggedIn: false,
   allusers: [],
   unverified:[],
-  // isLoading:true,
+  isLoading:true,
 }
 
 export const authSlice = createSlice({
@@ -15,18 +15,18 @@ export const authSlice = createSlice({
    login: (state, action) => {
       state.user = action.payload;
       state.isLoggedIn = true;
-      // state.isLoading = false;
+      state.isLoading = false;
 
     },
-    // getUser: (state, action) => {
-    //   state.user = action.payload;
-    //   state.isLoggedIn = true;
-    //   // state.isLoading = false;
-    // },
+    getUser: (state, action) => {
+      state.user = action.payload;
+      state.isLoggedIn = true;
+     state.isLoading = false;
+    },
     logout: (state) => {
       state.user = null;
       state.isLoggedIn = false;
-      // state.isLoading = false;
+      state.isLoading = false;
     },
     setAllusers: (state, action) => {
       state.allusers = action.payload;
@@ -42,6 +42,6 @@ export const authSlice = createSlice({
 })
 
 
-export const { login, logout ,setAllusers,setUnverifiedusers,setUnverifiedusersList} = authSlice.actions
+export const { login, getUser,logout ,setAllusers,setUnverifiedusers,setUnverifiedusersList} = authSlice.actions
 
 export default authSlice.reducer
