@@ -36,7 +36,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 function App() {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { user,isLoading } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const fetchUser = async () => {
