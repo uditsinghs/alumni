@@ -5,6 +5,7 @@ const initialState = {
   isLoggedIn: false,
   allusers: [],
   unverified:[],
+  isLoading:true,
 }
 
 export const authSlice = createSlice({
@@ -18,7 +19,8 @@ export const authSlice = createSlice({
     },
     getUser: (state, action) => {
       state.user = action.payload;
-      state.isLoggedIn = true
+      state.isLoggedIn = true,
+         isLoading:false,
     },
     logout: (state) => {
       state.user = null;
