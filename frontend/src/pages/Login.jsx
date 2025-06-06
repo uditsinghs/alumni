@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { ChevronRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector  } from "react-redux";
 import { login } from "../features/auth/authSlice";
 import { loginUser } from "@/features/auth/authService";
 import { toast } from "sonner";
@@ -31,6 +31,12 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
+   const { user } = useSelector((state) => state.auth);
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -48,11 +54,6 @@ const Login = () => {
         dispatch(login(userData));
         navigate("/");
 
-        // if (userData.role === "alumni" && !userData.isVarified) {
-        //   toast.info("Redirecting to verification page");
-        //   navigate("/message");
-        //   return;
-        // }
       }
     } catch (error) {
       setIsLoading(false);
