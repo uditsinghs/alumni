@@ -106,14 +106,14 @@ console.log(user);
                   <ThumbsUp size={16} />
                 )}
               </button>
-              <span>{post?.likes?.length} Likes</span>
+              <span>{post?.likes?.length}</span>
             </div>
 
             <div className="flex items-center gap-1">
               <Dialog>
                 <DialogTrigger className="flex gap-2 text-sm font-medium hover:underline cursor-pointer">
                   <MessageSquare size={16} className="" />
-                  {post?.comments?.length} Comments
+                  {post?.comments?.length} 
                 </DialogTrigger>
           
 
