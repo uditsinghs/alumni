@@ -267,6 +267,10 @@ export const LogoutUser = async (req, res) => {
     res.cookie("token", "", {
       httpOnly: true,
       expires: new Date(0),
+         httpOnly: true,
+      maxAge:0,
+       secure: process.env.NODE_ENV === "production", 
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", 
     }).status(200).json({ message: "Logout successful", success: true });
   } catch (error) {
     console.log(error);
