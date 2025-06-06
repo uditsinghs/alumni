@@ -334,23 +334,39 @@ export const getallusers = async (req, res) => {
   }
 };
 
+import User from "../models/User.js";
+import Post from "../models/Post.js";
+import Job from "../models/Job.js";
+import Event from "../models/Event.js";
+
 export const deleteUser = async (req, res) => {
   try {
-
     const { userId } = req.params;
-    if (!userId) {
 
+    if (!userId) {
       return res.status(400).json({ message: "UserId not found", success: false });
     }
+
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(400).json({ message: "User not found", success: false });
+      return res.status(404).json({ message: "User not found", success: false });
     }
 
+    await Post.deleteMany({ createdBy: userId });
+
+    await Job.deleteMany({ postedBy: userId });
+
+    await Event.updateMany(
+      { attendees: userId },
+      { $pull: { attendees: userId } }
+    );
+
     await user.deleteOne();
-    return res.status(200).json({ message: "user deleted successfully", success: true })
+
+    return res.status(200).json({ message: "User deleted successfully", success: true });
+
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       message: error.message || "Internal server error",
       success: false,
@@ -358,6 +374,7 @@ export const deleteUser = async (req, res) => {
     });
   }
 };
+
 export const changeUserRole = async (req, res) => {
   try {
     const { userId } = req.params;
