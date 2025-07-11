@@ -47,7 +47,7 @@ const Navbar = () => {
         {/* Logo */}
         <div className="text-2xl font-bold text-blue-600">
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQpP2D3Db0eXFyxHKyxGxTmnX4tTXIeRTvGg&s"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGBZhQbrcMQV_GBExnXGmsYPZAJujaCY6Seg&s"
             alt="logo"
             className="w-20"
           />
