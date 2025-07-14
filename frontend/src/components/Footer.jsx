@@ -14,7 +14,7 @@ const Footer = () => {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-white mb-2">
-            Future University
+            Lotus institute 
           </h2>
           <p className="text-sm">
             Empowering students to build the future through knowledge and
@@ -39,7 +39,7 @@ const Footer = () => {
             <li>
               <a href="/contact" className="hover:underline">
                 Contact Us : 090123 13333 <br />
-                E-mail     : info@futureuniversity.in
+                E-mail     : info@lotus.in
 
               </a>
             </li>
@@ -68,7 +68,7 @@ const Footer = () => {
 
       {/* Bottom Text */}
       <div className="text-center text-sm text-gray-500 mt-8">
-        © {new Date().getFullYear()} Future University. All rights reserved.
+        © {new Date().getFullYear()} Lotus institute. All rights reserved.
       </div>
     </footer>
   );
