@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="text-2xl font-bold text-blue-600">
           <img
-            src="https://i.pinimg.com/474x/7c/5d/97/7c5d9752bc4630fa585cab73b50a66a7.jpg"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGBZhQbrcMQV_GBExnXGmsYPZAJujaCY6Seg&s"
             alt="logo"
             className="w-20"
           />
